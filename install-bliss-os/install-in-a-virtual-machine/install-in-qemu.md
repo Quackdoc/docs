@@ -22,7 +22,7 @@ If you wish to use this guide on windows 10 or above, It may be possible to use 
 
 When you have Qemu installed be it on Linux or windows, you will have installed a plethora of Qemu related tools. the tool we need for this is `qemu-img`, Navigate to the folder you want your image installed in and run the following command.
 
-`qemu-img create -f qcow2 Bliss14.qcow2 20G`The difference between these are some features. each one has pros and cons, feel free to experiment
+`qemu-img create -f qcow2 Bliss14.qcow2 20G`
 
   Breaking this down a little bit running
   `qemu-img create` is used to tell the program we want to create.

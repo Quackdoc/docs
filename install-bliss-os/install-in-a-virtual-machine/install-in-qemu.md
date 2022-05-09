@@ -5,9 +5,9 @@ date: '2021-10-27'
 ---
 # Install with Qemu Script
 
-This article is a guide to install `Project Sakura` on `qemu`. Bliss at the moment does not work. Gearlock causes resizefs errors that do not occur in the current Project Sakura build. As the current builds do not have Gearlock. There is a version of Bliss 11.13 that does have a working Gearlock in the BLISS OS telegram group.
+This article is a guide to install `Android Generic` builds on Qemu. Bliss 14 at the current moment does not work. Gearlock causes resizefs errors that do not occur in the current Project Sakura build. There is a version of Bliss 11.13 that does have a working Gearlock in the BLISS OS telegram group.
 
-Also tested is AOSP 12. with AOSP 12 you may need to boot with hwcomposer.drm to get it to work properly when using virgl graphics. currently default boot does not work, and while using gbm mesa, the android UI crashes when a mouse is drawn. so while a keyboard works. no mouse control even with a real mouse passed through to the VM. this is not an issue when using hwcomposer.drm. I reccomend duplicating or editing the hwcompser.drm entry, remove 'DEBUG=2' from it. as it will allow usage as normal.
+Also tested is AOSP 12. with AOSP 12 you may need to boot with hwcomposer.drm to get it to work properly when using virgl graphics. currently default boot does not work, and while using gbm mesa, the android UI crashes when a mouse is drawn. so while a keyboard works. no mouse control even with a real mouse passed through to the VM. this is not an issue when using hwcomposer.drm. I recommend duplicating or editing the hwcompser.drm entry, remove 'DEBUG=2' from it. as it will allow usage as normal.
 
 ## Background
 
@@ -15,19 +15,19 @@ Qemu while simple in use, can be complicated to understand for beginners. This i
 
 Qemu on windows as of time of writing this will NOT work on bliss 14. but may work on bliss 11. this is due to lack of software rendering on bliss 14. assuming Gearlock issues get fixed. in the mean time, use Project Sakura OS. 
 
-If you wish to use this guide on windows 10 or above, It may be possible to use WSL, however to get Qemu KVM support on WSL you will need a custom kernel. Another possible method is to use an unoffical patch from the qemu-3dfx project to get virgl working on windows. but at this current time. it has not been tested with any android generic project.
+If you wish to use this guide on windows 10 or above, It may be possible to use WSL, however to get Qemu KVM support on WSL you will need a custom kernel. Another possible method is to use an unofficial patch from the `qemu-3dfx` project to get virgl working on windows. but at this current time. it has not been tested with any android generic project.
 
 
 ## Make the image.
 
-When you have Qemu installed be it on Linux or windows, you will have installed a plethora of Qemu related tools. the tool we need for this is qemu-img, Navigate to the folder you want your image installed in and run the following command.
+When you have Qemu installed be it on Linux or windows, you will have installed a plethora of Qemu related tools. the tool we need for this is `qemu-img`, Navigate to the folder you want your image installed in and run the following command.
 
-`qemu-img create -f qcow2 Bliss14.qcow2 20G`
+`qemu-img create -f qcow2 Bliss14.qcow2 20G`The difference between these are some features. each one has pros and cons, feel free to experiment
 
   Breaking this down a little bit running
   `qemu-img create` is used to tell the program we want to create.
 
-  `-f qcow2` is used to tell it we want to create the image using qcow2 format. qemu-img supports many formats so we want to specify this one.
+  `-f qcow2` is used to tell it we want to create the image using qcow2 format. `qemu-img` supports many formats so we want to specify this one.
 
   `Bliss14.qcow2` is the name of the image
 
@@ -55,7 +55,7 @@ Below is a sample bash script used to run Bliss14 in a Qemu VM
  -net nic,model=virtio-net-pci -net user,hostfwd=tcp::4444-:5555
  ```
 
-If you don't want an indepth explanation, you can skip the next section, Just make sure to replace `-drive` and `-cdrom` with the proper disk image, and cdrom image for your use.
+If you don't want an in-depth explanation, you can skip the next section, Just make sure to replace `-drive` and `-cdrom` with the proper disk image, and cdrom image for your use.
 
 ## Explanation 
 
@@ -69,7 +69,7 @@ While this looks a little complicated, when we break this down we can see that i
 
 `-m 4096 -smp 4` tells Qemu How much ram to use, and how many cores to add the the VM
 
-`-cpu host` This tells Qemu what CPU it should be trying telling the guest it is. Generally it is the preferred option. However in case you start to get instability `-cpu qemu64` may be the option you need as it presents a very barebones cpu to the VM. see `qemu-cpu-models` of the qemu docs to learn more.
+`-cpu host` This tells Qemu what CPU it should be trying telling the guest it is. Generally it is the preferred option. However in case you start to get instability `-cpu qemu64` may be the option you need as it presents a very bare bones cpu to the VM. see `qemu-cpu-models` of the Qemu docs to learn more.
 
  `-bios /usr/share/ovmf/x64/OVMF.fd \` is needed to tell Qemu to boot using UEFI, which is necessary as right now there is a bug that prevents android-generic based roms from being installed when in legacy mode. It is important to note that the location of this can vary depending on the host OS.
 
@@ -89,16 +89,16 @@ While this looks a little complicated, when we break this down we can see that i
 
 `-device virtio-vga-gl` this is needed for graphics acceleration, and while you can add a plethora of arguments, none are really beneficial at this time.
 
-`-display sdl,gl=on` This is used for the display, there are three main options here `-display sdl,gl=on` `display gtk.sdl-on` and `-display spice-app,gl=on` The difference between these is personal preference. be warned that even if you close the VM's window with `-display spice-app,gl=on` the VM will still be running, you will need to kill it from the terminal.
+`-display sdl,gl=on` This is used for the display, there are three main options here `-display sdl,gl=on` `display gtk.sdl-on` and `-display spice-app,gl=on` The difference between these are some features. each one has pros and cons, feel free to experiment. Though do take note that  even if you close the VM's window with `-display spice-app,gl=on` the VM will still be running, you will need to kill it from the terminal.
 
-`-net nic,model=virtio-net-pci -net user,hostfwd=tcp::4444-:5555` This really long command is the network command, `-net nic,model=virtio-net-pci` is what is used to add the network device to the guest in which case we are using virtio drivers again for best performance. `-net user` tells qemu how to pass the network through and the argument `hostfwd=tcp::4444-:5555` forwards port 4444 and port 5555 together, meaning if we open another terminal and type `adb connect localhost:4444` we can get an adb connection to the VM. 
+`-net nic,model=virtio-net-pci -net user,hostfwd=tcp::4444-:5555` This really long command is the network command, `-net nic,model=virtio-net-pci` is what is used to add the network device to the guest in which case we are using virtio drivers again for best performance. `-net user` tells Qemu how to pass the network through and the argument `hostfwd=tcp::4444-:5555` forwards port 4444 and port 5555 together, meaning if we open another terminal and type `adb connect localhost:4444` we can get an adb connection to the VM. 
 
 
 ## Install
 The rest of the installation is the same as real hardware. You should be able to proceed as normal. 
 
 ## Additional customizations
-Qemu is an incredibly powerful tool. this quick guide barely scratches the surface of some of the advanced customizations that are possible. if you are looking for more advanced features to step up your VM. To make it closer to a hardware install. here are some potential further customizations that are possible with qemu.
+Qemu is an incredibly powerful tool. this quick guide barely scratches the surface of some of the advanced customizations that are possible. if you are looking for more advanced features to step up your VM. To make it closer to a hardware install. here are some potential further customizations that are possible with Qemu.
 
   1. USB passthrough
   2. EVDEV usb+mouse passthrough for easy switching
